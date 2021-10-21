@@ -1,10 +1,12 @@
 import { useState } from "react"
+import ReservationModal from "./components/ReservationModal"
 import TicketPaymentModal from "./components/TicketPaymentModal"
 
 const App = () => {
   const [showModal, setShowModal] = useState(false)
+  const [showHotelModal, setShowHotelModal] = useState(false)
 
-  const handleHotelReservation = () => { }
+  const handleHotelReservation = () => setShowHotelModal(true)
 
   const handleTicketPurchase = () => {
     setShowModal(true)
@@ -22,6 +24,7 @@ const App = () => {
         </div>
       </div>
       <TicketPaymentModal show={showModal} setShow={setShowModal} />
+      <ReservationModal show={showHotelModal} setShow={setShowHotelModal} />
     </>
   )
 }
