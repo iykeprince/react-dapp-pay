@@ -14,8 +14,8 @@ import "./interfaces/IERC20.sol";
 
 
 contract Wallet is Ownable {
-    using SafeMath as uint256;
-    using SafeERC20 as IERC20;
+    using SafeMath for uint256;
+    using SafeERC20 for IERC20;
        
     mapping(string => UserWallet) private _userWallets;
 
@@ -28,20 +28,20 @@ contract Wallet is Ownable {
 
     function setWallet(string email, address wallet, string key ) external onlyOwner
     {
-        require(!_userWallets[email].Exists, "Wallet.sol: Account has already been initialized")
+        require(!_userWallets[email].Exists, "Wallet.sol: Account has already been initialized");
         _userWallets[email] = UserWallet(wallet,key);
     }
 
     function getWallet(string email) external returns (UserWallet memory)
     {
-        require(_userWallets[email].Exists, "Wallet.sol: Account not found")
+        require(_userWallets[email].Exists, "Wallet.sol: Account not found");
 
         return _userWallets[email];
     }
 
     function getBalance(string email) external view returns (uint256)
     {
-        require(_userWallets[email].Exists, "Wallet.sol: Account not found")
+        require(_userWallets[email].Exists, "Wallet.sol: Account not found");
         IERC20 token  = IERC20(_paymentCurrency);
         return token.balanceOf(_userWallets[email].WalletAddress);
     }
