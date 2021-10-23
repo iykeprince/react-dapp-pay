@@ -39,11 +39,11 @@ contract Wallet is Ownable {
         return _userWallets[email];
     }
 
-    function getBalance(string email) external view
+    function getBalance(string email) external view returns (uint256)
     {
         require(_userWallets[email].Exists, "Wallet.sol: Account not found")
         IERC20 token  = IERC20(_paymentCurrency);
-        token.balanceOf(_userWallets[email].WalletAddress);
+        return token.balanceOf(_userWallets[email].WalletAddress);
     }
 
     
