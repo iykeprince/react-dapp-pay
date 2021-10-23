@@ -9,10 +9,9 @@ import "./interfaces/IERC20.sol";
 
 
 
-
 contract Payment is Ownable {
-    using SafeMath as uint256;
-    using SafeERC20 as IERC20;
+    using SafeMath for uint256;
+    using SafeERC20 for IERC20;
     
     //event to notify the backend/frontend that a transaction has occured
     event DepositReceived(address indexed from, bytes32 indexed txRef, uint256 amount); 
@@ -43,11 +42,20 @@ contract Payment is Ownable {
         emit CurrencyDisabled(tokenContract);
     }
 
-    function isTokenSupported(address tokenContract) internal returns (bool)
+    function isTokenSupported(address tokenContract) internal view returns (bool)
     {
         return _acceptedCurrencies[tokenContract];
     }
      
+    
+
+    function withdraw(address tokenAddress) external onlyOwner {
+        IERC20 token = IERC20(tokenAddress);
+        uint256 balance = token.balanceOf(address(this));
+        token.safeTransfer(_msgSender(), balance);     
+        emit PaymentWithdrawn(_msgSender(),tokenAddress,balance) ;
+    }
+
     function deposit(bytes32 txRef, uint256 txAmount, address tokenContract) external {
 
         require(isTokenSupported(tokenContract), "Payment.Sol: Payment token is unsupported");
@@ -58,13 +66,6 @@ contract Payment is Ownable {
 
         token.safeTransferFrom(_msgSender(),address(this),allowance);
         emit DepositReceived(_msgSender(), txRef, allowance);
-    }
-
-    function withdraw(address tokenAddress) external onlyOwner {
-        IERC20 token = IERC20(tokenAddress);
-        uint256 balance = token.balanceOf(address(this));
-        token.safeTransfer(_msgSender(), balance);     
-        emit PaymentWithdrawn(_msgSender(),tokenAddress,balance) ;
     }
     
 }

@@ -41,7 +41,7 @@ const ReservationModal = ({ show, setShow }) => {
 
             </div>
         </div>
-        <TicketPaymentModal show={showModal} setShow={setShowModal} data={data} />
+        <TicketPaymentModal show={showModal} setShow={setShowModal} data={data} isHotel={true} />
         </>
     )
 }
