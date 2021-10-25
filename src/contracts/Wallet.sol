@@ -26,33 +26,29 @@ contract Wallet is Ownable {
         _paymentCurrency = tokenContract;
     }
 
-    function setWallet(string calldata email, string calldata key, address wallet,  ) external onlyOwner
+    function setWallet(string calldata email, address wallet  ) external
     {
         require(!_userWallets[email].Exists, "Wallet.sol: Account has already been initialized");
-        _userWallets[email] = UserWallet(wallet,key);
+        _userWallets[email] = UserWallet(wallet, true);
     }
 
-    function getWallet(string calldata email) external returns (UserWallet memory)
+    function getWallet(string email) external view returns (UserWallet memory)
     {
-        require(_userWallets[email].Exists, "Wallet.sol: Account not found");
+        // require(_userWallets[email].Exists, "Wallet.sol: Account not found");
 
         return _userWallets[email];
     }
 
-    function getBalance(string calldata email) external view returns (uint256)
+    function getBalance(string email) external view returns (uint256)
     {
         require(_userWallets[email].Exists, "Wallet.sol: Account not found");
         IERC20 token  = IERC20(_paymentCurrency);
-        return token.balanceOf(_userWallets[email].WalletAddress);
+        return token.balanceOf(_userWallet[email].Wallet);
     }
-
-    
 }
 
 struct UserWallet
 {
-    address WalletAddress;
-    string EncryptedKey;
+    address Wallet;
     bool Exists;
-
 }
