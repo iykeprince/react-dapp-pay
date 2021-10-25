@@ -22,7 +22,7 @@ const TicketPaymentModal = ({ show, setShow, data, isHotel }) => {
 
   const handlePay = async () => {
     setLoading(true)
-    const amount = data.price
+    const amount = parseInt(data.price)
 
     // console.log('amount', amount)
     // var weiAmount = 40;
@@ -50,9 +50,9 @@ const TicketPaymentModal = ({ show, setShow, data, isHotel }) => {
 
       // const encoded = contract.methods.transfer(txRef, weiAmount, ).encodeABI()
       console.log('walle address', localStorage.walletAddress)
-      // const tx = await contract.methods
-      //   .transfer(TOKEN_CONTRACT_ADDRESS, weiAmount)
-      //   .send({ from: localStorage.walletAddress, gas: 3000000 })
+      const tx = await contract.methods
+        .transfer(TOKEN_CONTRACT_ADDRESS, weiAmount)
+        .send({ from: localStorage.walletAddress, gas: 3000000 })
 
       // var tx = {
       //   to: contractAddress,
@@ -73,7 +73,7 @@ const TicketPaymentModal = ({ show, setShow, data, isHotel }) => {
       //   .send({ from: localStorage.walletAddress })
 
       console.log('Transaction will notify after success')
-      // console.log('tx', tx)
+      console.log('tx', tx)
       setLoading(false)
       setSuccess(true)
       setTimeout(() => handleClose(), 2000)
