@@ -8,15 +8,9 @@ import { Web3ReactProvider } from '@web3-react/core';
 
 import firebase from './utils/firebase'
 
-function getLibrary(provider) {
-  return new Web3(provider)
-}
-
 ReactDOM.render(
   <React.StrictMode>
-    <Web3ReactProvider getLibrary={getLibrary}>
-      <App />
-    </Web3ReactProvider>
+    <App />
   </React.StrictMode>,
   document.getElementById('root')
 );

@@ -1,92 +1,76 @@
-import React from 'react'
-import qrCode from './qrcode.png'
-import { useState } from 'react'
+import React, { useState, useContext } from 'react'
 import { useWeb3React } from '@web3-react/core'
 
 import { randomBytes } from 'crypto'
 import web3Utils from 'web3-utils'
 import { web3 } from '../../App'
+import AppContext from '../../context/AppContext'
 
-// 0xee31650923086260256b797658e2b8b189bd268d
-const TOKEN_CONTRACT_ADDRESS = '0xee31650923086260256b797658e2b8b189bd268d'
-const contractAddress = '0x98FA79a1BdE57cEcCD92df910f2E6fF81f0cE617'
+const TOKEN_CONTRACT_ADDRESS = process.env.REACT_APP_TOKEN_CONTRACT_ADDRESS
+const paymentContractAddress = '0x98FA79a1BdE57cEcCD92df910f2E6fF81f0cE617'
+
+const abi = require('../../truffle_abis/Payment.json').abi
+const ierc20Abi = require('../../truffle_abis/IERC20.json').abi
 
 const TicketPaymentModal = ({ show, setShow, data, isHotel }) => {
   const { account, active, activate } = useWeb3React()
-  /**
-   * Playground
-   */
+ 
+  const { getBalance } = useContext(AppContext)
 
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [pending, setPending] = useState(true)
+  const [isError, setIsError] = useState(false)
 
   const handlePay = async () => {
     setLoading(true)
     const amount = parseInt(data.price)
 
-    // console.log('amount', amount)
-    // var weiAmount = 40;
     var weiAmount = web3Utils.toWei(web3Utils.toBN(amount))
 
     const txRef = web3Utils.randomHex(32)
 
-    const abi = require('../../truffle_abis/Payment.json').abi
-    const ierc20Abi = require('../../truffle_abis/IERC20.json').abi
-
     try {
-      // const ierc20Contract = new window.web3.eth.Contract(
-      //   ierc20Abi,
-      //   TOKEN_CONTRACT_ADDRESS,
-      // )
+      const walletTo = TOKEN_CONTRACT_ADDRESS
+      const walletFrom = localStorage.walletAddress
 
-      // await ierc20Contract.methods
-      //   .approve(contractAddress, weiAmount)
-      //   .send({ from: account })
-      // const web3 = new Web3(
-      //   new Web3.providers.HttpProvider(BINANCE_SMART_CHAIN_NET_URL),
-      // )
-      // console.log('abi', abi)
       const contract = new web3.eth.Contract(ierc20Abi, TOKEN_CONTRACT_ADDRESS)
 
-      // const encoded = contract.methods.transfer(txRef, weiAmount, ).encodeABI()
-      console.log('walle address', localStorage.walletAddress)
+      const gas = await contract.methods
+        .transfer('0x3077ce0A36e7CF748EeaCEd6eba156f1E360FE21', weiAmount)
+        .estimateGas({ from: walletFrom })
+
       const tx = await contract.methods
-        .transfer(TOKEN_CONTRACT_ADDRESS, weiAmount)
-        .send({ from: localStorage.walletAddress, gas: 3000000 })
-
-      // var tx = {
-      //   to: contractAddress,
-      //   data: encoded,
-      // }
-
-      // const jsonObject = JSON.parse(localStorage.wallet)
-      // console.log('json object', jsonObject)
-      // const walletObject = web3.eth.accounts.decrypt(jsonObject.encryptedKey, jsonObject.password)
-      // web3.eth.accounts.signTransaction(tx, walletObject.privateKey).then((signed) => {
-      //   web3.eth
-      //     .sendSignedTransaction(signed.rawTransaction)
-      //     .on('receipt', console.log)
-      // })
-
-      // const tx = await contract.methods
-      //   .deposit(txRef, weiAmount, TOKEN_CONTRACT_ADDRESS)
-      //   .send({ from: localStorage.walletAddress })
+        .transfer('0x3077ce0A36e7CF748EeaCEd6eba156f1E360FE21', weiAmount)
+        .send({ from: walletFrom, gas: gas, gasPrice: 10 * 10 ** 9 })
 
       console.log('Transaction will notify after success')
       console.log('tx', tx)
+
+      // let event = contractInstance.event()
+      // event.watch(callback)
+
       setLoading(false)
       setSuccess(true)
+      setPending(false)
+      setIsError(false)
       setTimeout(() => handleClose(), 2000)
     } catch (ex) {
       console.log(ex)
+
+      setPending(false)
       setSuccess(false)
       setLoading(false)
+      setIsError(true)
     }
   }
 
   const handleClose = () => {
     setShow(false)
     setSuccess(false)
+    setIsError(false)
+    setPending(true)
+    getBalance()
   }
 
   return (
@@ -105,16 +89,7 @@ const TicketPaymentModal = ({ show, setShow, data, isHotel }) => {
           </button>
         </div>
         <hr />
-        {/* <div className="flex justify-between px-5 mt-2 mb-2">
-          <p>
-            {active ? <span>✅ Connected</span> : <span>Disconnected</span>}
-          </p>
-          {!active && (
-            <button className="py-2 px-5 shadow-xl rounded bg-blue-500 text-white">
-              Connect Wallet
-            </button>
-          )}
-        </div> */}
+        
         {data !== null && !isHotel && (
           <div className="pt-5 flex justify-center">
             <h4 className="font-bold text-4xl">40 TDO</h4>
@@ -129,11 +104,11 @@ const TicketPaymentModal = ({ show, setShow, data, isHotel }) => {
         )}
         <div className="p-5 flex justify-center">
           {/* {!success && <img src={qrCode} className="w-36 h-36" onClick={() => setSuccess(true)} />} */}
-          {!success && (
+          {pending && (
             <img
-              src={qrCode}
+              src={`https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${TOKEN_CONTRACT_ADDRESS}&choe=UTF-8`}
               className="w-36 h-36"
-              onClick={() => setSuccess(true)}
+              // onClick={() => setSuccess(true)}
             />
           )}
           {success && (
@@ -141,6 +116,17 @@ const TicketPaymentModal = ({ show, setShow, data, isHotel }) => {
               className="fa fa-check text-9xl text-green-400"
               onClick={() => setSuccess(false)}
             ></i>
+          )}
+          {isError && (
+            <div className="flex flex-col justify-center">
+              <div className="text-center">
+                <i className="fa fa-times text-9xl text-red-400"></i>
+              </div>
+              <br />
+              <p className="p-2 text-center text-xl">
+                An error occured, Please check your TDO balance
+              </p>
+            </div>
           )}
         </div>
         <div className="flex justify-center">
@@ -150,12 +136,9 @@ const TicketPaymentModal = ({ show, setShow, data, isHotel }) => {
             </p>
           )}
         </div>
-        {/* {!success && <div className="p-2 flex justify-center items-center border-solid rounded border-gray-500 pb-5">
-          <h4 className="font-normal">0xasdlfj9023poadkfjlaejqiejojelakjdsfpioqjeiqjekf</h4>&nbsp;
-          <span className="cursor-pointer"><i className="fa fa-copy"></i></span>
-        </div>} */}
+       
         <div className="flex justify-center align-center py-3">
-          {!success && (
+          {!success && !isError && (
             <button
               disabled={loading}
               onClick={handlePay}

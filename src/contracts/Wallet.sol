@@ -14,37 +14,37 @@ import "./interfaces/IERC20.sol";
 
 
 contract Wallet is Ownable {
-    using SafeMath for uint256;
-    using SafeERC20 for IERC20;
+    // using SafeMath for uint256;
+    // using SafeERC20 for IERC20;
        
-    mapping(string => UserWallet) private _userWallets;
+    // mapping(string => UserWallet) private _userWallets;
 
-    address private _paymentCurrency;
+    // address private _paymentCurrency;
     
-    constructor(address tokenContract)  
-    {
-        _paymentCurrency = tokenContract;
-    }
+    // constructor(address tokenContract)  
+    // {
+    //     _paymentCurrency = tokenContract;
+    // }
 
-    function setWallet(string calldata email, address wallet  ) external
-    {
-        require(!_userWallets[email].Exists, "Wallet.sol: Account has already been initialized");
-        _userWallets[email] = UserWallet(wallet, true);
-    }
+    // function setWallet(string calldata email, address wallet  ) external
+    // {
+    //     require(!_userWallets[email].Exists, "Wallet.sol: Account has already been initialized");
+    //     _userWallets[email] = UserWallet(wallet, true);
+    // }
 
-    function getWallet(string email) external view returns (UserWallet memory)
-    {
-        // require(_userWallets[email].Exists, "Wallet.sol: Account not found");
+    // function getWallet(string email) external view returns (UserWallet memory)
+    // {
+    //     // require(_userWallets[email].Exists, "Wallet.sol: Account not found");
 
-        return _userWallets[email];
-    }
+    //     return _userWallets[email];
+    // }
 
-    function getBalance(string email) external view returns (uint256)
-    {
-        require(_userWallets[email].Exists, "Wallet.sol: Account not found");
-        IERC20 token  = IERC20(_paymentCurrency);
-        return token.balanceOf(_userWallet[email].Wallet);
-    }
+    // function getBalance(string email) external view returns (uint256)
+    // {
+    //     require(_userWallets[email].Exists, "Wallet.sol: Account not found");
+    //     IERC20 token  = IERC20(_paymentCurrency);
+    //     return token.balanceOf(_userWallet[email].Wallet);
+    // }
 }
 
 struct UserWallet

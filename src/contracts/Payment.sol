@@ -7,9 +7,10 @@ import "./libraries/Address.sol";
 import "./libraries/Ownable.sol";
 import "./interfaces/IERC20.sol";
 
+//My test library for feeless transactions
+// import "./Feeless.sol";
 
-
-contract Payment is Ownable {
+contract Payment is Ownable  {
     using SafeMath for uint256;
     using SafeERC20 for IERC20;
     
@@ -43,7 +44,7 @@ contract Payment is Ownable {
     }
 
     function isTokenSupported(address tokenContract) internal view returns (bool)
-    {
+    {   
         return _acceptedCurrencies[tokenContract];
     }
      
@@ -56,7 +57,7 @@ contract Payment is Ownable {
         emit PaymentWithdrawn(_msgSender(),tokenAddress,balance) ;
     }
 
-    function deposit(bytes32 txRef, uint256 txAmount, address tokenContract) external {
+    function deposit(bytes32 txRef, uint256 txAmount, address tokenContract) external returns (bool) {
 
         require(isTokenSupported(tokenContract), "Payment.Sol: Payment token is unsupported");
         IERC20 token = IERC20(tokenContract);
@@ -66,6 +67,7 @@ contract Payment is Ownable {
 
         token.safeTransferFrom(_msgSender(),address(this),allowance);
         emit DepositReceived(_msgSender(), txRef, allowance);
+        return true;
     }
     
 }

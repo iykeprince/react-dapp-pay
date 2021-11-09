@@ -5,6 +5,7 @@ import { collection, addDoc, query, where, getDocs } from "firebase/firestore";
 
 import { db } from '../../utils/firebase';
 import { BINANCE_SMART_CHAIN_NET_URL, web3 } from '../../App';
+import { web3Utils } from 'web3-utils';
 
 const abi = require("../../truffle_abis/Wallet.json").abi;
 const contractAddress = "0xDde600a0A175FeA298b450a71E496e4606a3Dc0A"
@@ -22,12 +23,7 @@ const ConnectWallet = ({ show, setShow, setWallet }) => {
         let foundUserWallet = null;
         // const web3 = new Web3(BINANCE_SMART_CHAIN_NET_URL);
 
-
-
-
-
         try {
-
             const q = query(collection(db, "wallets"), where("email", "==", email))
             const querySnapshot = await getDocs(q);
 
@@ -68,6 +64,9 @@ const ConnectWallet = ({ show, setShow, setWallet }) => {
                     localStorage.wallet = JSON.stringify({ name, walletAddress: decryptWallet.address, email, password, encryptedKey: foundUserWallet.encryptedKey })
                     localStorage.loggedIn = true;
                     localStorage.walletAddress = decryptWallet.address;
+
+                    // initBNB(localStorage.walletAddress)
+
                     setWallet(localStorage.wallet)
                     setError(null)
                     console.log('wallet decrypted')
@@ -84,18 +83,6 @@ const ConnectWallet = ({ show, setShow, setWallet }) => {
         }
 
     }
-
-    /**
-     * OK! This function is no longer needed
-     * not a good way to manage wallet!!!!
-     */
-    // const integrateWalletToSmartContract = async () => {
-    //     const contract = new web3.eth.Contract(abi, contractAddress)
-    //     await contract.methods.setWallet(email, encryptedKey, walletAddress).call()
-    //     console.log('Setting wallet')
-    //     const savedWallet = await contract.methods.getWallet(walletAddress).call();
-    //     console.log('saved wallet', savedWallet)
-    // }
 
     const handleClose = () => {
         setShow(false)
